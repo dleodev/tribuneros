@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { LayoutGrid, ShoppingBag, TrendingDown, Package, Users, Upload, Settings, Search, Truck, ArrowUpRight, ArrowDownRight, Plus, Minus, X, Check, Trash2, Pencil, FileSpreadsheet, Download, Ticket, ChevronDown, ChevronRight, Boxes, RefreshCw, Trophy, Tag, ShoppingCart, Eye, History, Database } from "lucide-react";
+import { LayoutGrid, ShoppingBag, TrendingDown, Package, Users, Upload, Settings, Search, Truck, ArrowUpRight, ArrowDownRight, Plus, Minus, X, Check, Trash2, Pencil, FileSpreadsheet, Download, Ticket, ChevronDown, ChevronRight, Boxes, RefreshCw, Trophy, Tag, ShoppingCart, Eye, History, Database, BarChart3, Megaphone, MapPin, AlertTriangle, Wallet, PackageCheck } from "lucide-react";
 
 // ---------- TEMA ----------
 const C = {
@@ -25,7 +25,7 @@ const DEFAULT_RATES = { mp:5.57, cpt:2.0, iibb:1.5, c3:14.75 };
 
 const CANALES = ["Tiendanube","Offline","Instagram","WhatsApp"];
 const METODOS = ["Mercado Pago","Tarjeta crédito","Transferencia","Efectivo"];
-const CUOTAS = ["1","3 sin interés"];
+const CUOTAS = ["1","2 sin interés","3 sin interés"];
 const TALLES = ["—","XS","S","M","L","XL","XXL"];
 const ENVIO_QUIEN = ["Vos (absorbés)","Cliente","Sin envío","A coordinar"];
 
@@ -84,45 +84,9 @@ function buildClientes(ventas, manual) {
   return Object.values(map).sort((a,b)=>b.neto-a.neto);
 }
 
-// ---------- SEED ----------
-const SEED_RAW = [
-  { pedido:"100", fecha:"2026-06-10", cliente:"Liliana Amarilla", dni:"", email:"amarillaliliana82@gmail.com", tel:"+543624008686", direccion:"1 de Mayo, S/N", ciudad:"Fontana", cp:"3514", provincia:"Chaco", items:[{producto:"Argentina 2026 Titular (V. Jugador)", talle:"L", cant:1}], canal:"Tiendanube", metodo:"Tarjeta crédito", cuotas:"1", bruto:62000, retencion:930, cargo_mp:3455.16, cargo_plataforma:1240, interes3c:0, costo_envio:10156.78, quien_envio:"Vos (absorbés)", desp:false, acred:"", cupon:"", coment:"Andreani a domicilio" },
-];
-
-const SEED_EGRESOS = [
-  { id:"e1", fecha:"2026-06-01", desc:"Tanos · 10 Titular 2026 importada", cat:"Mercadería", monto:230000, notas:"PED-T1" },
-  { id:"e2", fecha:"2026-06-01", desc:"Tanos · envío Pedido 1", cat:"Envío", monto:10731, notas:"" },
-  { id:"e3", fecha:"2026-06-01", desc:"Tanos · 10 Titular + 18 camisetas (50%)", cat:"Mercadería", monto:588000, notas:"PED-T2" },
-  { id:"e4", fecha:"2026-06-01", desc:"Tanos · envío Pedido 2", cat:"Envío", monto:18252, notas:"" },
-  { id:"e5", fecha:"2026-06-01", desc:"Barrio Fino · 12 camisetas", cat:"Mercadería", monto:163000, notas:"PED-BF" },
-  { id:"e6", fecha:"2026-06-01", desc:"Barrio Fino · envío", cat:"Envío", monto:31000, notas:"" },
-  { id:"e7", fecha:"2026-06-01", desc:"Bolsas", cat:"Insumos", monto:25000, notas:"Única vez" },
-  { id:"e8", fecha:"2026-06-01", desc:"Calcos", cat:"Insumos", monto:3700, notas:"Única vez" },
-  { id:"e9", fecha:"2026-06-01", desc:"Tiendanube (mensual)", cat:"Fijo mensual", monto:26000, notas:"Recurrente" },
-];
-
-const SEED_PROV = [
-  { id:"p1", nombre:"Tanos", contacto:"—", notas:"Mayorista · 50% off en compra mayorista", pedidos:[
-    { id:uid(), desc:"Pedido 1 · Titular importada", costo:230000, envio:10731, items:[{prod:"Argentina Titular 2026 importada", talle:"—", cant:10}] },
-    { id:uid(), desc:"Pedido 2 · 10 Titular + 18 varias (50% off)", costo:588000, envio:18252, items:[
-      {prod:"Argentina Titular 2026", talle:"—", cant:10},{prod:"Argentina 2026 PREMIUM", talle:"—", cant:1},{prod:"Argentina Alternativa 2026 G5", talle:"—", cant:3},
-      {prod:"Argentina 2026 ICON", talle:"—", cant:2},{prod:"Liverpool 95-96", talle:"—", cant:1},{prod:"AFA entrenamiento 2026", talle:"—", cant:4},
-      {prod:"Boca entrenamiento 2026", talle:"—", cant:2},{prod:"Argentina 1994 PREMIUM", talle:"—", cant:1},{prod:"España Lamine Yamal 2026", talle:"—", cant:1},
-      {prod:"Argentina PREMIUM 2026 Messi", talle:"—", cant:1},{prod:"Argentina Alternativa PREMIUM Messi", talle:"—", cant:2},
-    ] },
-  ] },
-  { id:"p2", nombre:"Barrio Fino", contacto:"—", notas:"Mayorista · envío incluido", pedidos:[
-    { id:uid(), desc:"Pedido único", costo:163000, envio:31000, items:[
-      {prod:"ARG 2026 Lionel Messi", talle:"M", cant:2},{prod:"ARG 2026 Lionel Messi", talle:"L", cant:1},{prod:"ARG 2026 Lionel Messi", talle:"XL", cant:2},
-      {prod:"Maradona Alternativa 1994", talle:"XXL", cant:2},{prod:"Maradona Alternativa 1994", talle:"L", cant:1},
-      {prod:"Francia Zidane 1998", talle:"XL", cant:1},{prod:"ARG 2006 Messi", talle:"XL", cant:1},{prod:"ARG Alternativa 2026", talle:"XL", cant:1},{prod:"ARG Alternativa 2026", talle:"M", cant:1},
-    ] },
-  ] },
-];
-
-const stockFromProv = (prov) => mergeStock(prov.flatMap(p=>(p.pedidos||[]).flatMap(ped=>(ped.items||[]).map(it=>({ id:uid(), producto:it.prod, talle:it.talle||"—", ingresadas:it.cant, vendidas:0, costo:0, notas:"De "+p.nombre })))));
-const SEED_STOCK = stockFromProv(SEED_PROV);
-const SEED_MOVS = SEED_PROV.flatMap(p=>(p.pedidos||[]).flatMap(ped=>(ped.items||[]).map(it=>({ id:uid(), fecha:"2026-06-01 10:00", producto:it.prod, talle:it.talle||"—", tipo:"ingreso", cantidad:it.cant, origen:"Proveedor: "+p.nombre }))));
+// Sin datos de ejemplo a propósito: una base nueva arranca vacía, con
+// estados vacíos en cada pantalla. Los datos reales se cargan por afuera
+// (ver Importar/Exportar) o a mano desde cada módulo.
 
 const load = async (k, def) => { try { const r = await window.storage.get(k); return r?.value ? JSON.parse(r.value) : def; } catch { return def; } };
 const save = (k, d) => { try { return window.storage.set(k, JSON.stringify(d)); } catch {} };
@@ -699,7 +663,9 @@ function Clientes({ ventas, clientes, setClientes, notify }) {
 }
 
 // ====== DASHBOARD ======
-function Dashboard({ ventas, egresos }) {
+function Dashboard({ ventas, egresos, estadisticas }) {
+  const audit = estadisticas?.rentabilidad_auditoria;
+  const potencial = estadisticas?.ganancia_potencial_stock;
   const bruto = ventas.reduce((s,v)=>s+(+v.bruto||0),0);
   const neto = ventas.reduce((s,v)=>s+(+v.neto_final||0),0);
   const aRecibir = ventas.reduce((s,v)=>s+(+v.neto_cobrar||0),0);
@@ -733,6 +699,16 @@ function Dashboard({ ventas, egresos }) {
         <KPI icon={Package} label="Despachos pendientes" value={pend} color={C.orange} bg={C.orangeSoft}/>
       </div>
 
+      {(audit || potencial) && (
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap:14, marginBottom:16 }}>
+          {audit && (
+            <KPI icon={Trophy} label="Margen sobre lo vendido (auditoría)" value={`${audit.margen_pct}%`} sub={ars(audit.waterfall[audit.waterfall.length-1]?.monto || 0)+" · costo de lo que se vendió, no caja"} color={C.green} bg={C.greenSoft}/>
+          )}
+          {potencial && (
+            <KPI icon={PackageCheck} label="Ganancia potencial en stock" value={ars(potencial.ganancia_potencial)} sub={`si vendés las ${potencial.unidades} unidades al ritmo actual`} color={C.violetDeep} bg={C.violetSoft}/>
+          )}
+        </div>
+      )}
       <div style={{ display:"grid", gridTemplateColumns:"1.4fr 1fr", gap:14, marginBottom:16 }}>
         <Card style={{ padding:22 }}>
           <div style={{ fontSize:14, color:C.soft, fontWeight:600 }}>Resultado del mes</div>
@@ -803,6 +779,261 @@ function Dashboard({ ventas, egresos }) {
           </div>
         </Card>
       </div>
+    </div>
+  );
+}
+
+// ====== ESTADISTICAS ======
+function agrupar(ventas, campo, valorFn) {
+  const m = {};
+  ventas.forEach(v=>{
+    const k = v[campo] || "—";
+    m[k] = (m[k]||0) + (valorFn ? valorFn(v) : 1);
+  });
+  return Object.entries(m).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
+}
+
+function SectionTitle({ children, icon:Icon }) {
+  return <div style={{ display:"flex", alignItems:"center", gap:8, margin:"22px 0 12px", fontWeight:800, fontSize:15, color:C.ink }}>{Icon && <Icon size={17} color={C.violet}/>}{children}</div>;
+}
+
+function BarList({ data, fmt, color }) {
+  const max = Math.max(1, ...data.map(d=>d.value));
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
+      {data.map(d=>(
+        <div key={d.name} style={{ display:"grid", gridTemplateColumns:"140px 1fr auto", alignItems:"center", gap:10, fontSize:12.5 }}>
+          <span style={{ color:C.soft, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }} title={d.name}>{d.name}</span>
+          <div style={{ background:C.violetSoft2, borderRadius:5, height:14, position:"relative" }}>
+            <div style={{ width:`${Math.max(4,d.value/max*100)}%`, height:"100%", borderRadius:5, background:color||C.violet }}/>
+          </div>
+          <span style={{ fontFamily:"monospace", color:C.ink, fontWeight:600 }}>{fmt?fmt(d.value):d.value}</span>
+        </div>
+      ))}
+      {!data.length && <div style={{ fontSize:12.5, color:C.faint }}>Sin datos.</div>}
+    </div>
+  );
+}
+
+function Estadisticas({ ventas, estadisticas }) {
+  const tn = ventas.filter(v=>v.canal==="Tiendanube");
+
+  const porEquipoDetectado = (() => {
+    const eq = { "Boca":"Boca Juniors", "River":"River Plate", "Argentina":"Selección Argentina", "Selecci":"Selección Argentina" };
+    const m = {};
+    tn.forEach(v=>(v.items||[]).forEach(it=>{
+      const nombre = (it.producto||"");
+      const clave = Object.keys(eq).find(k=>nombre.includes(k));
+      const label = clave ? eq[clave] : "Otros / internacional";
+      m[label] = (m[label]||0) + (+it.cant||1);
+    }));
+    return Object.entries(m).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
+  })();
+
+  const porTalle = (() => {
+    const m = {};
+    tn.forEach(v=>(v.items||[]).forEach(it=>{ const t=it.talle||"—"; if(t==="—") return; m[t]=(m[t]||0)+(+it.cant||1); }));
+    return Object.entries(m).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
+  })();
+
+  const porModelo = (() => {
+    const m = {};
+    tn.forEach(v=>(v.items||[]).forEach(it=>{ const k=it.producto||"—"; m[k]=(m[k]||0)+(+it.cant||1); }));
+    return Object.entries(m).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value).slice(0,10);
+  })();
+
+  const porMedio = agrupar(tn, "metodo", v=>+v.bruto||0);
+  const porForma = agrupar(tn, "forma_pago", v=>+v.bruto||0);
+  const porCuotas = agrupar(tn.filter(v=>v.metodo==="Mercado Pago"), "cuotas");
+  const porProvincia = agrupar(tn, "provincia");
+  const porEnvio = agrupar(tn, "quien_envio");
+  const conCupon = tn.filter(v=>v.cupon).length;
+
+  const ads = estadisticas?.ads;
+  const caidos = estadisticas?.pedidos_caidos || [];
+  const mp = estadisticas?.mercadopago;
+  const audit = estadisticas?.rentabilidad_auditoria;
+
+  return (
+    <div>
+      <Title>Estadísticas</Title>
+      <div style={{ color:C.soft, fontSize:13, marginTop:2, marginBottom:6 }}>
+        Todo lo que se pudo sacar de tus ventas reales{estadisticas ? ` y de la auditoría (actualizada ${estadisticas.actualizado})` : ""}.
+      </div>
+
+      <SectionTitle icon={ShoppingBag}>Qué se vendió</SectionTitle>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+        <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Unidades por equipo</div><BarList data={porEquipoDetectado}/></Card>
+        <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Unidades por talle</div><BarList data={porTalle}/></Card>
+      </div>
+      <Card style={{ padding:20, marginTop:14 }}>
+        <div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Top 10 modelos por unidades</div>
+        <BarList data={porModelo}/>
+      </Card>
+
+      <SectionTitle icon={Wallet}>Cómo te pagaron</SectionTitle>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+        <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Monto por medio de pago</div><BarList data={porMedio} fmt={ars}/></Card>
+        <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Monto por forma de pago</div><BarList data={porForma} fmt={ars} color={C.orange}/></Card>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginTop:14 }}>
+        <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Cuotas con Mercado Pago</div><BarList data={porCuotas} color={C.blue}/></Card>
+        <Card style={{ padding:20 }}>
+          <div style={{ fontWeight:700, marginBottom:6, fontSize:13 }}>Cupones</div>
+          <div style={{ fontSize:28, fontWeight:800, color:C.ink }}>{conCupon}/{tn.length}</div>
+          <div style={{ fontSize:12, color:C.faint }}>pedidos con cupón aplicado</div>
+          {estadisticas?.cupones && <div style={{ fontSize:12, color:C.soft, marginTop:8 }}>TRIBUNEROS10 sumó {ars(estadisticas.cupones.tribuneros10_descuento)} en descuentos · {estadisticas.cupones.regalo10_cargados} cupones "REGALO" cargados, {estadisticas.cupones.regalo10_usados} usados.</div>}
+        </Card>
+      </div>
+
+      <SectionTitle icon={MapPin}>Dónde están tus compradores</SectionTitle>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+        <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Pedidos por provincia</div><BarList data={porProvincia}/></Card>
+        <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Método de envío</div><BarList data={porEnvio} color={C.green}/></Card>
+      </div>
+
+      {!!caidos.length && (
+        <>
+          <SectionTitle icon={AlertTriangle}>Pedidos caídos, pendientes y reembolsados</SectionTitle>
+          <div className="callout" style={{ background:C.orangeSoft, border:`1px solid ${C.border}`, borderRadius:12, padding:"12px 16px", fontSize:12.5, color:C.ink, marginBottom:12 }}>
+            <strong>{caidos.length} pedidos, {ars(estadisticas.pedidos_caidos_total)}</strong> en el mismo período que nunca se cobraron — no están en el export de ventas, salen de la API de Tiendanube.
+          </div>
+          <Card style={{ padding:0, overflow:"hidden" }}>
+            <div style={{ overflowX:"auto" }}>
+              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12.5 }}>
+                <thead><tr style={{ textAlign:"left", color:C.faint, fontSize:11, textTransform:"uppercase" }}>
+                  <th style={{ padding:"10px 14px" }}>Pedido</th><th style={{ padding:"10px 14px" }}>Fecha</th><th style={{ padding:"10px 14px" }}>Producto</th><th style={{ padding:"10px 14px" }}>Estado</th><th style={{ padding:"10px 14px", textAlign:"right" }}>Monto</th>
+                </tr></thead>
+                <tbody>
+                  {caidos.map(c=>(
+                    <tr key={c.pedido} style={{ borderTop:`1px solid ${C.border}` }}>
+                      <td style={{ padding:"9px 14px" }}>#{c.pedido}</td>
+                      <td style={{ padding:"9px 14px" }}>{c.fecha}</td>
+                      <td style={{ padding:"9px 14px", color:C.soft }}>{c.producto}</td>
+                      <td style={{ padding:"9px 14px" }}><Badge color={C.red} bg={C.redSoft}>{c.estado_pago}</Badge></td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{ars(c.monto)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      )}
+
+      {ads && (
+        <>
+          <SectionTitle icon={Megaphone}>Publicidad — cuenta {ads.cuenta.nombre}</SectionTitle>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:12, marginBottom:14 }}>
+            <KPI icon={Megaphone} label="Gasto en Ads" value={"US$"+ads.gasto_usd} sub={ars(ads.gasto_ars)} color={C.orange} bg={C.orangeSoft}/>
+            <KPI icon={ShoppingCart} label="Compras atribuidas (píxel)" value={ads.compras_atribuidas_pixel} sub={`vs. ${tn.length} reales`} color={C.red} bg={C.redSoft}/>
+            <KPI icon={ArrowUpRight} label="ROAS real" value={ads.roas_real+"x"} sub={`Meta reporta ${ads.roas_meta}x`} color={C.green} bg={C.greenSoft}/>
+            <KPI icon={Eye} label="Agregar al carrito" value={ads.add_to_cart_atribuidos} color={C.blue} bg={C.blueSoft}/>
+          </div>
+          <Card style={{ padding:0, overflow:"hidden", marginBottom:14 }}>
+            <div style={{ overflowX:"auto" }}>
+              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12.5 }}>
+                <thead><tr style={{ textAlign:"left", color:C.faint, fontSize:11, textTransform:"uppercase" }}>
+                  <th style={{ padding:"10px 14px" }}>Campaña</th><th style={{ padding:"10px 14px", textAlign:"right" }}>Gasto</th><th style={{ padding:"10px 14px", textAlign:"right" }}>Impresiones</th><th style={{ padding:"10px 14px", textAlign:"right" }}>Clics</th><th style={{ padding:"10px 14px", textAlign:"right" }}>CTR</th><th style={{ padding:"10px 14px" }}>Resultado</th><th style={{ padding:"10px 14px", textAlign:"right" }}>ROAS</th>
+                </tr></thead>
+                <tbody>
+                  {ads.campañas.map(c=>(
+                    <tr key={c.nombre} style={{ borderTop:`1px solid ${C.border}` }}>
+                      <td style={{ padding:"9px 14px" }}>{c.nombre}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{c.gasto_usd?`US$${c.gasto_usd}`:"—"}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{c.impresiones.toLocaleString("es-AR")}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{c.clics.toLocaleString("es-AR")}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{c.ctr?c.ctr+"%":"—"}</td>
+                      <td style={{ padding:"9px 14px", color:C.soft }}>{c.resultado}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{c.roas?c.roas+"x":"—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+            <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Gasto y resultados por género</div><BarList data={ads.genero.map(g=>({name:g.genero, value:g.resultados}))} color={C.lav}/></Card>
+            <Card style={{ padding:20 }}><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Gasto y resultados por edad</div><BarList data={ads.edad.map(e=>({name:e.edad, value:e.resultados}))} color={C.blue}/></Card>
+          </div>
+        </>
+      )}
+
+      {mp && (
+        <>
+          <SectionTitle icon={Wallet}>Mercado Pago</SectionTitle>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+            <Card style={{ padding:20 }}>
+              <div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Comisión real sobre {ars(mp.bruto_mp)}</div>
+              <div style={{ fontSize:12.5, color:C.soft, lineHeight:1.9 }}>
+                Comisión: <strong style={{ color:C.red }}>−{ars(mp.comision_mp)}</strong><br/>
+                IIBB: <strong style={{ color:C.red }}>−{ars(mp.iibb)}</strong><br/>
+                Neto acreditado: <strong style={{ color:C.ink }}>{ars(mp.neto_acreditado)}</strong><br/>
+                Descuento real: <strong>{mp.descuento_real_pct}%</strong>
+              </div>
+            </Card>
+            <Card style={{ padding:20 }}>
+              <div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>Movimientos sin confirmar</div>
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                {mp.movimientos_sin_confirmar.map((m,i)=>(
+                  <div key={i} style={{ fontSize:12, display:"flex", justifyContent:"space-between", gap:8 }}>
+                    <span style={{ color:C.soft }}>{m.desc} <span style={{ color:C.faint }}>({m.fecha})</span></span>
+                    <span style={{ fontFamily:"monospace", color:m.monto<0?C.red:C.green, flexShrink:0 }}>{ars(m.monto)}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </>
+      )}
+
+      {audit && (
+        <>
+          <SectionTitle icon={Trophy}>Rentabilidad real (auditoría)</SectionTitle>
+          <Card style={{ padding:20, marginBottom:14 }}>
+            <div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>De la facturación al margen</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {audit.waterfall.map((w,i)=>(
+                <div key={i} style={{ display:"flex", justifyContent:"space-between", fontSize:12.5, fontWeight:w.total?800:400, color:w.total?C.ink:C.soft, borderTop:w.total?`1px solid ${C.border}`:"none", paddingTop:w.total?8:0 }}>
+                  <span>{w.concepto}</span>
+                  <span style={{ fontFamily:"monospace", color:w.monto<0?C.red:(w.total?C.green:C.ink) }}>{ars(w.monto)}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+          <Card style={{ padding:0, overflow:"hidden" }}>
+            <div style={{ overflowX:"auto" }}>
+              <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12.5 }}>
+                <thead><tr style={{ textAlign:"left", color:C.faint, fontSize:11, textTransform:"uppercase" }}>
+                  <th style={{ padding:"10px 14px" }}>Equipo</th><th style={{ padding:"10px 14px", textAlign:"right" }}>Unidades</th><th style={{ padding:"10px 14px", textAlign:"right" }}>Ingresos</th><th style={{ padding:"10px 14px", textAlign:"right" }}>Margen est.</th><th style={{ padding:"10px 14px", textAlign:"right" }}>% margen</th>
+                </tr></thead>
+                <tbody>
+                  {audit.margen_por_equipo.map(m=>(
+                    <tr key={m.equipo} style={{ borderTop:`1px solid ${C.border}` }}>
+                      <td style={{ padding:"9px 14px" }}>{m.equipo}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{m.unidades}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{ars(m.ingresos)}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace", color:C.green }}>{ars(m.margen_est)}</td>
+                      <td style={{ padding:"9px 14px", textAlign:"right", fontFamily:"monospace" }}>{m.margen_pct}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      )}
+
+      {!!estadisticas?.ambiguedades_abiertas?.length && (
+        <>
+          <SectionTitle icon={AlertTriangle}>Para confirmar</SectionTitle>
+          <Card style={{ padding:20 }}>
+            <ul style={{ margin:0, paddingLeft:18, fontSize:12.5, color:C.soft, lineHeight:1.9 }}>
+              {estadisticas.ambiguedades_abiertas.map((a,i)=><li key={i}>{a}</li>)}
+            </ul>
+          </Card>
+        </>
+      )}
     </div>
   );
 }
@@ -1045,6 +1276,7 @@ function Config({ rates, setRates, notify }) {
 // ====== APP ======
 const NAV = [
   { id:"resumen", label:"Resumen", icon:LayoutGrid },
+  { id:"estadisticas", label:"Estadísticas", icon:BarChart3 },
   { id:"ventas", label:"Ventas", icon:ShoppingBag },
   { id:"egresos", label:"Egresos", icon:TrendingDown },
   { id:"proveedores", label:"Proveedores", icon:Package },
@@ -1064,6 +1296,7 @@ export default function App() {
   const [clientes, setClientes] = useState([]);
   const [movs, setMovs] = useState([]);
   const [rates, setRates] = useState(DEFAULT_RATES);
+  const [estadisticas, setEstadisticas] = useState(null);
   const [ready, setReady] = useState(false);
   const [toast, setToast] = useState(null);
   const notify = (msg,type) => { setToast({msg,type}); setTimeout(()=>setToast(null),2600); };
@@ -1081,25 +1314,20 @@ export default function App() {
   useEffect(()=>{
     const l=document.createElement("link"); l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"; document.head.appendChild(l);
     const rts=DEFAULT_RATES;
-    const seedVentas=SEED_RAW.map(v=>computeVenta(migrateVenta({ id:uid(), ...v }), rts));
-    setVentas(seedVentas); setEgresos(SEED_EGRESOS); setProv(SEED_PROV); setStock(SEED_STOCK); setMovs(SEED_MOVS); setRates(rts); setReady(true);
     (async()=>{
       try{
-        const s=await window.storage.get("tbx_seeded_v3");
-        if(s&&s.value){
-          const [v,e,p,st,cl,mv,rt]=await Promise.all([load("tbx_ventas",seedVentas),load("tbx_egresos",SEED_EGRESOS),load("tbx_proveedores",SEED_PROV),load("tbx_stock",SEED_STOCK),load("tbx_clientes",[]),load("tbx_movs",SEED_MOVS),load("tbx_rates",rts)]);
-          if(Array.isArray(v)) setVentas(v.map(x=>computeVenta(migrateVenta(x), rt||rts)));
-          if(Array.isArray(e)) setEgresos(e);
-          if(Array.isArray(p)) setProv(p.map(pp=>({ ...pp, pedidos:(pp.pedidos||[]).map(ped=>({ id:ped.id||uid(), ...ped, items:(ped.items||[]).map(it=>({ talle:"—", ...it })) })) })));
-          if(Array.isArray(st)) setStock(mergeStock(st));
-          if(Array.isArray(cl)) setClientes(cl);
-          if(Array.isArray(mv)) setMovs(mv);
-          if(rt) setRates(rt);
-        } else {
-          await Promise.all([save("tbx_ventas",seedVentas),save("tbx_egresos",SEED_EGRESOS),save("tbx_proveedores",SEED_PROV),save("tbx_stock",SEED_STOCK),save("tbx_clientes",[]),save("tbx_movs",SEED_MOVS),save("tbx_rates",rts)]);
-          await window.storage.set("tbx_seeded_v3","1");
-        }
+        const [v,e,p,st,cl,mv,rt,es]=await Promise.all([load("tbx_ventas",[]),load("tbx_egresos",[]),load("tbx_proveedores",[]),load("tbx_stock",[]),load("tbx_clientes",[]),load("tbx_movs",[]),load("tbx_rates",rts),load("tbx_estadisticas",null)]);
+        if(es) setEstadisticas(es);
+        const rFinal = rt || rts;
+        if(Array.isArray(v)) setVentas(v.map(x=>computeVenta(migrateVenta(x), rFinal)));
+        if(Array.isArray(e)) setEgresos(e);
+        if(Array.isArray(p)) setProv(p.map(pp=>({ ...pp, pedidos:(pp.pedidos||[]).map(ped=>({ id:ped.id||uid(), ...ped, items:(ped.items||[]).map(it=>({ talle:"—", ...it })) })) })));
+        if(Array.isArray(st)) setStock(mergeStock(st));
+        if(Array.isArray(cl)) setClientes(cl);
+        if(Array.isArray(mv)) setMovs(mv);
+        setRates(rFinal);
       }catch(err){}
+      setReady(true);
     })();
   },[]);
 
@@ -1132,7 +1360,8 @@ export default function App() {
           </div>
         </div>
         <div style={{ padding:28 }}>
-          {tab==="resumen" && <Dashboard ventas={ventas} egresos={egresos}/>}
+          {tab==="resumen" && <Dashboard ventas={ventas} egresos={egresos} estadisticas={estadisticas}/>}
+          {tab==="estadisticas" && <Estadisticas ventas={ventas} estadisticas={estadisticas}/>}
           {tab==="ventas" && <Ventas ventas={ventas} setVentas={setVentas} rates={rates} notify={notify} query={query}/>}
           {tab==="egresos" && <Egresos egresos={egresos} setEgresos={setEgresos} notify={notify}/>}
           {tab==="proveedores" && <Proveedores prov={prov} setProv={setProv} stock={stock} setStock={setStock} movs={movs} setMovs={setMovs} notify={notify}/>}
